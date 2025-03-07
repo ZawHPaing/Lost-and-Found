@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lost and Found Chat</title>
+<style>
+	/* Basic styling for layout and chat UI */
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+	
+	body {
+		font-family: Arial, sans-serif;
+		background-color: #F3F4F6;
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+	}
+	
+	.container {
+		display: flex;
+		flex: 1;
+	}
+	
+	.sidebar {
+		width: 250px;
+		background-color: #D1E8E2;
+		padding: 20px;
+		border-right: 1px solid #E0E0E0;
+	}
+	
+	.sidebar h2 {
+		color: #2D2D2D;
+		margin-bottom: 20px;
+	}
+	
+	.sidebar-button {
+		background-color: #76D7C4;
+		color: black;
+		border: none;
+		padding: 12px;
+		margin: 10px 0;
+		cursor: pointer;
+		width: 100%;
+		transition: background-color 0.3s;
+		border-radius: 8px;
+	}
+	
+	.sidebar-button:hover {
+		background-color: white;
+	}
+	
+	.chat-area {
+		flex: 1;
+		background: linear-gradient(135deg, #76CAD4, #57BC92);
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+	}
+	
+	.chat-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20px;
+		color: #FFFFFF;
+		border-bottom: 1px solid #E0E0E0;
+	}
+	
+	.search-bar {
+		width: 200px;
+		padding: 10px;
+		border: 1px solid #4B3D3D;
+		border-radius: 5px;
+		background-color: #FFFFFF;
+		color: #4B3D3D;
+	}
+	
+	.chat-messages {
+		flex: 1;
+		padding: 20px;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+	}
+	
+	.message {
+		display: flex;
+		align-items: flex-start;
+		padding: 10px;
+		border-radius: 10px;
+		margin-bottom: 10px;
+		max-width: 70%;
+		transition: background-color 0.2s;
+	}
+	
+	.sent {
+		background-color: #FFD700;
+		color: black;
+		align-self: flex-end;
+		justify-content: flex-end;
+		text-align: right;
+	}
+	
+	.received {
+		background-color: #FFFFFF;
+		color: black;
+		align-self: flex-start;
+		justify-content: flex-start;
+		text-align: left;
+	}
+	
+	.avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background-color: #EAEAEA;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 10px;
+		font-weight: bold;
+	}
+	
+	.message-content {
+		position: relative;
+	}
+	
+	.timestamp {
+		font-size: 0.8em;
+		color: #4B3D3D;
+		margin-top: 5px;
+	}
+	
+	.avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background-color: #EAEAEA;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 10px;
+		font-weight: bold;
+	}
+	
+	.message-content {
+		position: relative;
+	}
+	
+	.timestamp {
+		font-size: 0.8em;
+		color: #4B3D3D;
+		margin-top: 5px;
+	}
+	
+	.chat-footer {
+		display: flex;
+		padding: 10px;
+		background-color: #FFFFFF;
+		border-top: 1px solid #E0E0E0;
+		position: sticky;
+		bottom: 0;
+		width: 100%;
+		display: flex;
+		padding: 10px;
+		background-color: #FFFFFF;
+		border-top: 1px solid #E0E0E0;
+	}
+	
+	.message-input {
+		flex: 1;
+		padding: 10px;
+		border: 1px solid #EAEAEA;
+		border-radius: 5px;
+		margin-right: 10px;
+	}
+	
+	.send-button {
+		background-color: #FF4500;
+		color: white;
+		border: none;
+		padding: 10px;
+		cursor: pointer;
+		transition: background-color 0.3s;
+		border-radius: 5px;
+	}
+	
+	.send-button:hover {
+		background-color: white;
+		color: #FF4500;
+	}
+	
+	.date-header {
+		text-align: center;
+		font-size: 14px;
+		font-weight: bold;
+		color: #4B3D3D;
+		padding: 5px;
+		margin: 10px 0;
+		border-radius: 5px;
+	}
+	
+	.message {
+		display: flex;
+		align-items: flex-start;
+		padding: 12px 16px;
+		border-radius: 12px;
+		margin-bottom: 12px;
+		max-width: 75%;
+		font-size: 1rem; /* Increase font size */
+		word-wrap: break-word;
+		box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+		transition: background-color 0.2s;
+	}
+	
+	/* Sent messages (Right-side) */
+	.sent {
+		background-color: #FFD700;
+		color: black;
+		align-self: flex-end;
+		justify-content: flex-end;
+		text-align: right;
+		border-top-right-radius: 0;
+	}
+	
+	/* Received messages (Left-side) */
+	.received {
+		background-color: #FFFFFF;
+		color: black;
+		align-self: flex-start;
+		justify-content: flex-start;
+		text-align: left;
+		border-top-left-radius: 0;
+		border: 1px solid #ddd;
+	}
+	
+	/* Sender (Recipient) Information */
+	.sender-info {
+		display: flex;
+		align-items: center;
+		margin-bottom: 5px;
+	}
+	
+	/* Make recipient username bold with better color */
+	.sender-name {
+		font-weight: bold;
+		font-size: 1rem;
+		color: #007BFF; /* Nice blue color */
+		margin-left: 10px;
+	}
+	
+	/* Profile Picture */
+	.avatar {
+		width: 45px;
+		height: 45px;
+		border-radius: 50%;
+		background-color: #EAEAEA;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 10px;
+		font-weight: bold;
+		border: 2px solid #007BFF;
+	}
+	
+	/* Chat messages container */
+	.chat-messages {
+		flex: 1;
+		padding: 20px;
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		max-height: 80vh;
+	}
+	
+	/* Chat footer (input area) */
+	.chat-footer {
+		display: flex;
+		padding: 12px;
+		background-color: #FFFFFF;
+		border-top: 1px solid #E0E0E0;
+		position: sticky;
+		bottom: 0;
+		width: 100%;
+	}
+	
+	/* Input field */
+	.message-input {
+		flex: 1;
+		padding: 12px;
+		font-size: 1rem;
+		border: 1px solid #EAEAEA;
+		border-radius: 6px;
+		margin-right: 10px;
+	}
+	
+	/* Send button */
+	.send-button {
+		background-color: #FF4500;
+		color: white;
+		border: none;
+		padding: 12px 18px;
+		cursor: pointer;
+		transition: background-color 0.3s;
+		border-radius: 6px;
+		font-size: 1rem;
+	}
+	
+	.send-button:hover {
+		background-color: white;
+		color: #FF4500;
+		border: 1px solid #FF4500;
+	}
+	/* Overlay to blur background */
+	.modal-overlay {
+		display: none; /* Hidden by default */
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgba(0, 0, 0, 0.3); /* Dark transparent overlay */
+		backdrop-filter: blur(5px); /* Blur effect */
+		z-index: 999;
+	}
+	
+	/* Modal Box */
+	.modal {
+		display: none; /* Hidden by default */
+		position: fixed;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		background: white;
+		padding: 20px;
+		border-radius: 10px;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+		z-index: 1000;
+	}
+	
+	/* Modal Content Styling */
+	.modal-content {
+		text-align: center;
+		font-size: 16px;
+	}
+	
+	#closeDialog {
+		margin-top: 10px;
+		padding: 8px 15px;
+		background: #007bff;
+		color: white;
+		border: none;
+		border-radius: 5px;
+		cursor: pointer;
+	}
+	
+	.image-upload-button {
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-right: 10px;
+	}
+	
+	.upload-icon {
+		width: 24px;
+		height: 24px;
+		padding-right: 5px;
+		padding-top: 6px;
+		transition: transform 0.2s ease-in-out;
+	}
+	
+	.upload-icon:hover {
+		transform: scale(1.1);
+	}
+	
+	.media-preview-container {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-bottom: 10px;
+	}
+	
+	.media-preview-wrapper {
+		position: relative;
+		max-width: 100px;
+	}
+	
+	.media-preview {
+		width: 100%;
+		height: auto;
+		border-radius: 5px;
+	}
+	
+	.remove-preview {
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		background: red;
+		color: white;
+		border: none;
+		cursor: pointer;
+		font-size: 14px;
+		border-radius: 50%;
+		padding: 2px 6px;
+	}
+	/* CSS for media grid */
+	/* Styling for media grid container */
+	/* Styling for media grid container */
+	/* Media Viewer for image and video */
+	.media-viewer {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.8);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		z-index: 1000;
+	}
+	
+	/* Content of the viewer */
+	.media-viewer-content {
+		position: relative;
+		max-width: 90%;
+		max-height: 90vh;
+		text-align: center;
+	}
+	
+	/* Image in viewer */
+	.media-viewer-img {
+		max-width: 100%;
+		max-height: 80vh;
+		object-fit: contain;
+		border-radius: 10px;
+	}
+	
+	/* Video in viewer */
+	.media-viewer-video {
+		max-width: 100%;
+		max-height: 80vh;
+		object-fit: contain;
+		border-radius: 10px;
+	}
+	
+	/* Close button */
+	.close-btn {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		font-size: 30px;
+		color: white;
+		cursor: pointer;
+		background-color: rgba(0, 0, 0, 0.5);
+		border-radius: 50%;
+		padding: 5px 10px;
+	}
+	
+	/* Layout for media content */
+	.media-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+		gap: 10px;
+	}
+	
+	.media-item {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	.media-preview {
+		max-width: 100%;
+		max-height: 200px;
+		cursor: pointer;
+		border-radius: 10px;
+	}
+</style>
+
+</head>
+<body>
+	<div class="container">
+		<aside class="sidebar">
+			<h2>Navigation</h2>
+			<button class="sidebar-button" onclick="window.location.href='/chatroom/conversations?userId=' + encodeURIComponent('${session.loggedInUser.userId}')">Back To Conversations</button>
+			<button class="sidebar-button"
+        th:onclick="'window.location.href=\'' +
+            (${session.loggedInUser.role == 'ROLE_USER'} ? @{/posts/approvedposts} :
+            (${session.loggedInUser.role == 'ROLE_ADMIN'} ? @{/posts/managepostsadmin} : '#')) + '\''">
+    Back to Dashboard
+</button>
+
+		</aside>
+
+		<main class="chat-area">
+			<header class="chat-header">
+				<!-- Hidden input to store the logged-in user ID -->
+				<input type="hidden" id="loggedInUserId"
+					th:value="${session.loggedInUser != null ? session.loggedInUser.userId : ''}" />
+				<input type="hidden" id="otherUserId"
+					th:value="${otherUserId}" />
+				<input type="hidden" id="otherUserProfilePic"
+					th:value="${otherUserProfilePic}" /> <input type="hidden"
+					id="otherUserName" th:value="${otherUserName}" />
+				<h1>Chat Room</h1>
+				<input type="text" class="search-bar" placeholder="Search..." />
+			</header>
+			<div class="chat-messages" id="chatMessages">
+				<!-- Chat history and new messages appear here -->
+			</div>
+			<div id="mediaPreviewContainer" class="media-preview-container"></div>
+			<footer class="chat-footer">
+				<!-- Upload Media Button -->
+				<label for="mediaUpload" class="media-upload-button"> <img
+					src="/uploads/chats/upload-icon.png" alt="Upload" class="upload-icon"
+					style="cursor: pointer;">
+				</label> <input type="file" id="mediaUpload" accept="image/*,video/*"
+					style="display: none;" multiple>
+				<!-- Message Input and Send Button -->
+				<input type="text" class="message-input" id="messageInput"
+					placeholder="Type a message...">
+				<button class="send-button" id="sendButton">Send</button>
+			</footer>
+		</main>
+	</div>
+	<!-- Dialog Box (Modal) -->
+	<div id="messageDialog" class="modal">
+		<div class="modal-content">
+			<p id="dialogMessage"></p>
+			<button id="closeDialog">OK</button>
+		</div>
+	</div>
+	<!-- Load libraries -->
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+	<script>
+
+  const mediaUpload = document.getElementById('mediaUpload');
+  const mediaPreviewContainer = document.getElementById('mediaPreviewContainer');
+
+  mediaUpload.addEventListener('change', function (event) {
+      if (mediaPreviewContainer.children.length >= 5) {
+    	  document.getElementById("dialogMessage").innerText = "You cannot upload more than 5 media files";
+    	  showMessageDialog();
+          return;
+      }
+
+      const files = event.target.files;
+      if (files.length + mediaPreviewContainer.children.length > 5) {
+    	  document.getElementById("dialogMessage").innerText = "You cannot upload more than 5 media files";
+    	  showMessageDialog();
+          return;
+      }
+
+      for (let file of files) {
+          if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+              alert("Only images and videos are allowed.");
+              continue;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+              const wrapper = document.createElement('div');
+              wrapper.classList.add('media-preview-wrapper');
+
+              let mediaElement;
+              if (file.type.startsWith('image/')) {
+                  mediaElement = document.createElement('img');
+                  mediaElement.src = e.target.result;
+                  mediaElement.classList.add('media-preview');
+              } else {
+                  mediaElement = document.createElement('video');
+                  mediaElement.src = e.target.result;
+                  mediaElement.classList.add('media-preview');
+                  mediaElement.controls = true;
+              }
+
+              const removeButton = document.createElement('button');
+              removeButton.textContent = '✖';
+              removeButton.classList.add('remove-preview');
+              removeButton.onclick = () => {
+                  mediaPreviewContainer.removeChild(wrapper);
+              };
+
+              wrapper.appendChild(mediaElement);
+              wrapper.appendChild(removeButton);
+              mediaPreviewContainer.appendChild(wrapper);
+          };
+
+          reader.readAsDataURL(file);
+      }
+  });
+
+	// Fetch the recipient's profile picture from the hidden input field
+	  let otherUserProfilePicElement = document.getElementById("otherUserProfilePic");
+	  let otherUserProfilePic = otherUserProfilePicElement ? otherUserProfilePicElement.value : "";
+
+	  let otherUserIdElement = document.getElementById("otherUserId");
+	  let otherUserId = otherUserIdElement ? otherUserIdElement.value : "";
+
+	  //  Ensure the correct profile picture is being used
+	  if (!otherUserProfilePic || otherUserProfilePic.trim() === "") {
+	      console.error("No recipient profile picture found!");
+	  } else {
+	      console.log("Using recipient profile picture:", otherUserProfilePic);
+	  }
+
+	//Get the search bar element
+	  const searchInput = document.querySelector(".search-bar");
+
+	// Function to filter messages dynamically
+	  function filterMessages() {
+	      const query = searchInput.value.toLowerCase().trim();
+	      const messages = document.querySelectorAll(".message");
+
+	      messages.forEach(message => {
+	          const messageText = message.querySelector(".message-content")?.textContent.toLowerCase();
+	          message.style.display = messageText && messageText.includes(query) ? "flex" : "none";
+	      });
+
+	      // Keep date headers visible if at least one message below them is shown
+	      document.querySelectorAll(".date-header").forEach(header => {
+	          let nextMessage = header.nextElementSibling;
+	          while (nextMessage && nextMessage.classList.contains("message") && nextMessage.style.display === "none") {
+	              nextMessage = nextMessage.nextElementSibling;
+	          }
+	          header.style.display = nextMessage ? "block" : "none";
+	      });
+	  }
+
+	// Attach event listener to search input
+	  searchInput.addEventListener("input", filterMessages);
+
+	    // Extract chatRoomId from URL (e.g., if the URL is /chat/{chatRoomId})
+	    const pathParts = window.location.pathname.split('/');
+	    const chatRoomId = pathParts[pathParts.length - 1];
+	    // DOM element references
+
+	    const messageInput = document.getElementById("messageInput");
+	    const sendButton = document.getElementById('sendButton');
+	    const chatMessages = document.getElementById('chatMessages');
+
+	    // Set to track message IDs to avoid duplicates (each message should have a unique chatId)
+	    const loadedMessageIds = new Set();
+
+	    function customLog(message) {
+	        const logContainer = document.getElementById('logContainer'); // Make sure you have a div with this ID in your HTML
+	        if (logContainer) {
+	            const logEntry = document.createElement('div');
+	            logEntry.textContent = message;
+	            logContainer.appendChild(logEntry);
+	        } else {
+	            console.log(message); // Fallback to regular console logging if no logContainer is found
+	        }
+	    }
+
+	 // Get logged-in user ID (from local storage or session)
+	    let currentUserId = document.getElementById("loggedInUserId").value;// 🔥 Replace 2 with actual stored user ID
+
+	 // Store the last displayed date to avoid redundant date headers
+	    let lastDisplayedDate = "";
+	 // Function to display a message with media (image/video)
+	    function displayMessage(message) {
+	        if (!message || !message.sender) return;
+
+	        // Avoid duplicate messages
+	        if (message.chatId && loadedMessageIds.has(message.chatId)) return;
+	        if (message.chatId) loadedMessageIds.add(message.chatId);
+
+	        const newMessage = document.createElement("div");
+	        const isSentByCurrentUser = message.sender.userId == currentUserId;
+
+	        newMessage.className = "message " + (isSentByCurrentUser ? "sent" : "received");
+
+	        // Fetch recipient’s username and profile picture
+	        let otherUserName = document.getElementById("otherUserName").value || "Unknown User";
+	        let userInitial = otherUserName.charAt(0).toUpperCase();
+	        let otherUserProfilePic = document.getElementById("otherUserProfilePic").value;
+
+	        // Show recipient's profile picture and username only for received messages
+	        let profilePicHtml = "";
+	        let usernameHtml = "";
+
+	        if (!isSentByCurrentUser) {
+	            let otherUserProfilePicReplace = otherUserProfilePic ? otherUserProfilePic.replace("/uploads/users/", "") : "";
+	            if (otherUserProfilePicReplace.trim() !== "" && otherUserProfilePicReplace.trim() != "null") {
+	            	profilePicHtml = `
+	            	    <img src="/uploads/users/${otherUserId}/${otherUserProfilePic}"
+	            	         alt="Profile Picture"
+	            	         class="avatar">
+	            	`;
+	            } else {
+	                profilePicHtml = `<div class="avatar avatar-initials">${userInitial}</div>`;
+	            }
+
+	            usernameHtml = `<span class="sender-name">${otherUserName}</span>`;
+	        }
+
+	        // Convert timestamp to display time (HH:MM AM/PM)
+	        const messageTime = new Date(message.createdAt).toLocaleTimeString([], {
+	            hour: '2-digit',
+	            minute: '2-digit',
+	            hour12: true
+	        });
+
+	        const messageDateObj = new Date(message.createdAt);
+
+	        const messageDate = messageDateObj.toISOString().split('T')[0]; // Format: "YYYY-MM-DD"
+
+	        const today = new Date();
+	        const yesterday = new Date();
+	        yesterday.setDate(yesterday.getDate() - 1);
+
+	        let dateLabel = messageDate;
+	        if (messageDate === today.toISOString().split('T')[0]) {
+	            dateLabel = "Today";
+	        } else if (messageDate === yesterday.toISOString().split('T')[0]) {
+	            dateLabel = "Yesterday";
+	        } else {
+	            dateLabel = messageDateObj.toLocaleDateString([], { month: "short", day: "2-digit", year: "numeric" });
+	        }
+
+	        if (lastDisplayedDate !== messageDate) {
+	            lastDisplayedDate = messageDate;
+	            const dateHeader = document.createElement("div");
+	            dateHeader.className = "date-header";
+	            dateHeader.textContent = dateLabel;
+	            chatMessages.appendChild(dateHeader);
+	        }
+
+	        let content = message.content || "";  // Default to empty string if no content
+	        let mediaContent = "";  // Initialize media content variable
+
+	        // Handle media content (Image/Video)
+	        if (message.mediaList && message.mediaList.length > 0) {
+	            mediaContent += `<div class="media-grid">`;  // Use a grid layout for media content
+
+	            message.mediaList.forEach((media) => {
+	                if (media.mediaType === "image") {
+	                    mediaContent += `
+	                        <div class="media-item">
+	                            <img src="${media.mediaUrl}" class="media-preview" alt="Image" onclick="openImageViewer('${media.mediaUrl}')" />
+	                        </div>`;
+	                } else if (media.mediaType === "video") {
+	                    mediaContent += `
+	                        <div class="media-item">
+	                            <video controls class="media-preview" onclick="openVideoViewer('${media.mediaUrl}')">
+	                                <source src="${media.mediaUrl}" type="video/mp4" />
+	                                Your browser does not support the video tag.
+	                            </video>
+	                        </div>`;
+	                }
+	            });
+
+	            mediaContent += `</div>`;  // End of media grid
+	        }
+			//alert(JSON.stringify(message));
+	        // If there is content or media, append it to the message
+	        if (content.trim() || mediaContent.trim()) {
+	        	newMessage.innerHTML = `
+	        	    <div class="sender-info">
+	        	        ${profilePicHtml}
+	        	        <div class="message-content">
+	        	            ${usernameHtml} <!-- Display recipient's username -->
+	        	            ${content} <!-- Display the text content -->
+	        	            ${mediaContent} <!-- Display the media content (image/video) -->
+	        	            <div class="message-footer">
+	        	                <span class="timestamp">${messageTime}</span>
+	        	                <span class="read-status">
+	        	                    ${isSentByCurrentUser ? (message.read ? "✔✔" : "✔") : ""}
+	        	                </span>
+	        	            </div>
+	        	        </div>
+	        	    </div>
+	        	`;
+	        }
+	        chatMessages.appendChild(newMessage);
+	        chatMessages.scrollTop = chatMessages.scrollHeight;
+	    }
+
+	    // Function to open the image viewer when an image is clicked
+	    function openImageViewer(imageUrl) {
+	        const viewer = document.createElement("div");
+	        viewer.className = "media-viewer";
+	        viewer.innerHTML = `
+	            <div class="media-viewer-content">
+	                <img src="${imageUrl}" alt="Image Viewer" class="media-viewer-img" />
+	                <span class="close-btn" onclick="closeMediaViewer()">X</span>
+	            </div>
+	        `;
+	        document.body.appendChild(viewer);
+	    }
+
+	    // Function to open the video viewer when a video is clicked
+	    function openVideoViewer(videoUrl) {
+	        const viewer = document.createElement("div");
+	        viewer.className = "media-viewer";
+	        viewer.innerHTML = `
+	            <div class="media-viewer-content">
+	                <video controls class="media-viewer-video">
+	                    <source src="${videoUrl}" type="video/mp4" />
+	                    Your browser does not support the video tag.
+	                </video>
+	                <span class="close-btn" onclick="closeMediaViewer()">X</span>
+	            </div>
+	        `;
+	        document.body.appendChild(viewer);
+	    }
+
+	    // Function to close the image/video viewer
+	    function closeMediaViewer() {
+	        const viewer = document.querySelector(".media-viewer");
+	        if (viewer) {
+	            viewer.remove();
+	        }
+	    }
+
+
+
+  // Load chat history on page load
+    function loadChatHistory() {
+        console.log("Fetching chat history for room:", chatRoomId);
+
+        fetch('/chat/room/' + chatRoomId + '/messages') // Use new JSON endpoint
+            .then(response => response.json())
+            .then(messages => {
+                console.log("Fetched messages:", messages);
+                messages.forEach(message => displayMessage(message));
+            })
+            .catch(err => console.error('Error loading chat history:', err));
+	    }
+
+	    // Call loadChatHistory when the page loads
+	    window.onload = function() {
+	        loadChatHistory();
+	    };
+
+
+
+
+	 // Connect to WebSocket at /ws
+	    const socket = new SockJS('/ws');
+	    const stompClient = Stomp.over(socket);
+
+	    stompClient.connect({}, function(frame) {
+	        console.log('Connected: ' + frame);
+
+	        // Subscribe to new messages for this chat room
+	        stompClient.subscribe('/topic/chatroom-' + chatRoomId, function(response) {
+	            const message = JSON.parse(response.body);
+	            displayMessage(message, 'received');
+	        });
+
+	        // Subscribe to notifications (using a different topic, like /topic/notifications)
+
+	    }, function(error) {
+	        console.error('WebSocket connection error:', error);
+	    });
+
+
+    function showMessageDialog() {
+    	  document.getElementById("messageDialog").style.display = "block";
+    	  document.getElementById("modalOverlay").style.display = "block"; // Show blur
+    	 // messageInput.value = ""; // Clear input field
+    	}
+
+    	document.getElementById("closeDialog").addEventListener("click", function () {
+    	  document.getElementById("messageDialog").style.display = "none";
+    	  document.getElementById("modalOverlay").style.display = "none"; // Remove blur
+    	});
+    	function sendMessage() {
+    	    const messageText = document.getElementById("messageInput").value.trim();
+    	    const files = mediaUpload.files; // Get multiple files
+    	    const senderId = document.getElementById("loggedInUserId").value;
+
+    	    // Check if the message exceeds 255 characters
+    	    if (messageText.length > 255) {
+    	        // Show the dialog box
+    	        document.getElementById("dialogMessage").innerText = "message exceeds 255 characters"
+    	        showMessageDialog();
+    	        return; // Prevent the message from being sent
+    	    }
+
+    	    if (!senderId) {
+    	        alert("Error: User ID not found. Please log in again.");
+    	        return;
+    	    }
+
+    	    // Disable send button to prevent duplicate clicks
+    	    document.getElementById("sendButton").disabled = true;
+
+    	    const formData = new FormData();
+    	    let messagePayload = {};
+
+    	    // If there are files (media), append them to FormData
+    	    if (files.length > 0) {
+    	        for (let i = 0; i < files.length; i++) {
+    	            formData.append("files", files[i]);
+    	        }
+    	    }
+
+    	    // If there is text, add it to FormData
+    	    if (messageText) {
+    	        formData.append("content", messageText);
+    	    }
+
+    	    // Append sender and chatRoomId to FormData
+    	    formData.append("senderId", senderId);
+    	    formData.append("chatRoomId", chatRoomId);
+
+    	    // Send the request to the backend
+    	    fetch('/chat/send', {
+    	        method: "POST",
+    	        body: formData
+    	    })
+    	    .then(response => response.json())
+    	    .then(data => {
+    	        if (data.success) {
+    	            // If media was sent, handle media URLs
+    	            if (files.length > 0) {
+    	                const mediaUrls = data.files.map(file => file.fileUrl);
+    	                messagePayload = {
+    	                    content: mediaUrls.length > 0 ? mediaUrls[0] : "", // Only the first media file
+    	                    sender: { userId: parseInt(senderId) },
+    	                    type: "media"
+    	                };
+    	            }
+
+    	            // If text was sent, include the text message
+    	            if (messageText) {
+    	                messagePayload = {
+    	                    content: messageText,
+    	                    sender: { userId: parseInt(senderId) },
+    	                    type: "text"
+    	                };
+    	            }
+
+    	            // Send the message (either text or media or both)
+    	            stompClient.send("/app/send-message/" + chatRoomId, {}, JSON.stringify(messagePayload));
+    	            // Clear the inputs after sending
+    	            document.getElementById("messageInput").value = "";
+    	            mediaUpload.value = "";
+    	            document.getElementById("mediaPreviewContainer").style.display = "none"; // Hide Preview
+    	            setTimeout(() => {
+    	                window.location.href = window.location.href; // Soft reload (less obvious than window.location.reload())
+    	            }, 300);
+    	        } else {
+    	            alert("Failed to send message. Backend error.");
+    	        }
+    	    })
+    	    .catch(error => {
+    	        console.error("Error sending message:", error);
+    	        alert("Error occurred while sending the message.");
+    	    })
+    	    .finally(() => {
+    	        // Re-enable the send button
+    	        document.getElementById("sendButton").disabled = false;
+    	    });
+    	}
+
+    	// Event listener for the send button
+    	document.getElementById("sendButton").addEventListener("click", sendMessage);
+
+    	// Close the dialog box when "OK" is clicked
+    	document.getElementById("closeDialog").addEventListener("click", function() {
+    	    document.getElementById("messageDialog").style.display = "none";
+    	});
+
+    	// Load the chat history on page load
+    	window.onload = function() {
+    	    loadChatHistory();
+    	};
+
+  </script>
+	<!-- Overlay for Blurring -->
+	<div id="modalOverlay" class="modal-overlay"></div>
+</body>
+</html>

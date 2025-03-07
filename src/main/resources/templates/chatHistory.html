@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat History</title>
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+<style>
+.dark-mode {
+	background-color: #1E293B;
+	color: #F8FAFC;
+}
+
+.dark-mode .chat-sidebar {
+	background-color: #334155;
+}
+
+.dark-mode .chat-card {
+	background-color: #475569;
+}
+
+.dark-mode .input-field {
+	background-color: #334155;
+	color: white;
+}
+
+.light-mode {
+	background: linear-gradient(135deg, #76CAD4, #57BC92);
+}
+
+/* Maintain sidebar and chat card background colors */
+.light-mode .chat-sidebar {
+	background-color: #D1E8E2;
+}
+
+.light-mode .chat-card {
+	background-color: white;
+}
+
+/* Apply gradient background to light mode */
+.light-mode {
+	background: linear-gradient(135deg, #76CAD4, #57BC92);
+}
+
+/* Maintain sidebar and chat card background colors */
+.light-mode .chat-sidebar {
+	background-color: #D1E8E2;
+}
+
+.light-mode .chat-card {
+	background-color: white;
+}
+
+/* Hover effect on chat card */
+.light-mode .chat-card:hover {
+	background-color: #F0F0F0; /* Light gray background on hover */
+	transform: scale(1.02); /* Slight scale effect */
+	transition: all 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Hover effect on chat card */
+.light-mode .chat-item:hover {
+	background-color: #F0F0F0; /* Light gray background on hover */
+	transform: scale(1.02); /* Slight scale effect */
+}
+
+.sidebar {
+	width: 250px;
+	background-color: #D1E8E2;
+	padding: 20px;
+	border-right: 1px solid #E0E0E0;
+}
+
+.sidebar h2 {
+	font-size: 50px !important;
+	color: #2D2D2D;
+	margin-bottom: 20px;
+	
+}
+
+.chat-heading {
+    font-size: 1.5em;
+}
+
+.sidebar-button {
+	background-color: #76D7C4;
+	color: black;
+	border: none;
+	padding: 10px;
+	margin: 10px 0;
+	cursor: pointer;
+	width: 100%;
+	transition: background-color 0.3s;
+	border-radius: 5px;
+}
+
+.sidebar-button:hover {
+	background-color: white;
+}
+
+.floating-back {
+	position: absolute;
+	bottom: 20px; /* Adjust the distance from the bottom */
+	left: 50%;
+	transform: translateX(-50%);
+	width: 90%;
+	transition: background-color 0.3s;
+}
+
+.floating-back:hover {
+	background-color: white;
+}
+
+.notification-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.notification-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 13px;
+	height: 13px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+</style>
+
+</head>
+<body class="light-mode transition-all duration-500">
+	<div class="flex h-screen">
+		<!-- Sidebar -->
+		<div class="w-1/5 chat-sidebar p-6 flex flex-col shadow-xl relative">
+			<h2 class="font-bold text-lg mb-6 chat-heading">Chats</h2>
+			<aside class="sidebar flex-1">
+				<!-- Conditionally show the "Contact Admin" button based on the role -->
+				<form th:action="@{/chat/contact-admin}" method="post">
+					<button class="sidebar-button"
+						th:if="${session.loggedInUser != null and session.loggedInUser.role != null and session.loggedInUser.role != 'ROLE_ADMIN'}">Contact
+						Admin</button>
+				</form>
+			</aside>
+
+			<button class="sidebar-button floating-back"
+				onclick="window.history.back()">Back</button>
+		</div>
+
+		<!-- Chat List -->
+		<div class="flex-1 p-8 overflow-y-auto">
+			<div class="p-4 bg-white rounded-lg shadow-md mb-4 flex items-center">
+				<input id="searchInput" type="text" placeholder="Search chats..."
+					class="w-full p-2 outline-none bg-transparent text-gray-700">
+			</div>
+
+			<div id="chatList" class="space-y-4">
+				<div th:each="chatRoom : ${chatRooms}"
+					class="p-3 bg-white rounded-lg shadow-md flex items-center space-x-4 text-sm cursor-pointer chat-item"
+					th:attr="data-chatroom-id=${chatRoom.chatRoomId}">
+
+					<!-- Avatar/Profile Picture -->
+					<div
+						class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+						<!-- Check if the user has a profile picture -->
+						<img
+						    th:if="${chatRoom.recipient.userId == loggedInUserId && chatRoom.sender.profilePicture != null ||
+						           chatRoom.recipient.userId != loggedInUserId && chatRoom.recipient.profilePicture != null}"
+						    th:src="@{'/uploads/users/' + ${chatRoom.recipient.userId == loggedInUserId ? chatRoom.sender.userId : chatRoom.recipient.userId} + '/' +
+						           ${chatRoom.recipient.userId == loggedInUserId ? chatRoom.sender.profilePicture : chatRoom.recipient.profilePicture}}"
+						    alt="Profile Picture"
+						    class="w-full h-full object-cover">
+
+
+
+
+						<!-- Fallback to initials if no profile picture is available -->
+						<span
+							th:unless="${chatRoom.recipient.userId == loggedInUserId ? chatRoom.sender.profilePicture : chatRoom.recipient.profilePicture}"
+							th:text="${chatRoom.recipient.userId == loggedInUserId ? chatRoom.sender.username.substring(0, 1).toUpperCase() : chatRoom.recipient.username.substring(0, 1).toUpperCase()}">
+						</span>
+					</div>
+
+
+
+					<!-- Chat Content -->
+					<div class="flex-1 min-w-0">
+						<div class="flex justify-between items-center">
+							<h3 class="font-semibold truncate"
+								th:text="${chatRoom.recipient.userId == loggedInUserId ? chatRoom.sender.username : chatRoom.recipient.username}">
+							</h3>
+
+							<span
+								th:if="${unreadCounts[chatRoom.chatRoomId] != null and unreadCounts[chatRoom.chatRoomId] > 0}"
+								th:text="${unreadCounts[chatRoom.chatRoomId]}"
+								class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+							</span>
+
+						</div>
+
+						<!-- Last Message -->
+						<p class="text-gray-600 truncate">
+							<span th:if="${chatRoom.lastMessage != null}"> <!-- Check if the last message has media -->
+								<span
+								th:if="${chatRoom.lastMessage.mediaList != null and chatRoom.lastMessage.mediaList.size() > 0}">
+									<span class="text-sm text-gray-500">media</span>
+							</span> <!-- Display the message content --> <span
+								th:if="${chatRoom.lastMessage.content != null}"> <span
+									th:text="${chatRoom.lastMessage.content}"></span>
+							</span>
+
+							</span>
+						</p>
+
+					</div>
+				</div>
+
+
+			</div>
+		</div>
+
+		<!-- JavaScript -->
+		<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Handle chat list clicks
+    document.querySelectorAll(".chat-item").forEach(chatItem => {
+    	chatItem.addEventListener("click", function () {
+            let chatRoomId = this.getAttribute("data-chatroom-id");
+            if (chatRoomId) {
+                markMessagesAsRead(chatRoomId); // Mark messages as read
+                window.location.href = `/chat/room/${chatRoomId}`; // Redirect to chat room
+            }
+
+        });
+    });
+
+
+
+    // Handle timestamps
+    const timestamps = document.querySelectorAll(".timestamp");
+    timestamps.forEach(span => {
+        let rawTimestamp = span.getAttribute("data-timestamp");
+        if (!rawTimestamp) return;
+
+        let date = new Date(rawTimestamp);
+        let now = new Date();
+        span.textContent = formatTimestamp(date, now);
+    });
+
+    function markMessagesAsRead(chatRoomId) {
+        fetch(`/chat/mark-read/${chatRoomId}`, { method: "PUT" }) // API Call
+            .then(response => response.json())
+            .then(data => {
+                console.log("Messages marked as read:", data);
+            })
+            .catch(error => console.error("Error marking messages as read:", error));
+    }
+    function formatTimestamp(date, now) {
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const isToday = date.toDateString() === now.toDateString();
+        const isThisWeek = date > new Date(now.setDate(now.getDate() - now.getDay()));
+
+        if (isToday) {
+            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        } else if (isThisWeek) {
+            return dayNames[date.getDay()];
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById("searchInput");
+    const chatItems = document.querySelectorAll(".chat-item");
+
+    searchInput.addEventListener("input", function () {
+        const searchValue = searchInput.value.toLowerCase();
+
+        chatItems.forEach(chatItem => {
+            const chatName = chatItem.querySelector("h3").textContent.toLowerCase();
+            if (chatName.includes(searchValue)) {
+                chatItem.style.display = "flex"; // Show matching items
+            } else {
+                chatItem.style.display = "none"; // Hide non-matching items
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

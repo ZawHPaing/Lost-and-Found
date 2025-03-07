@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Denied</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f8f9fa;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	margin: 0;
+}
+
+.container {
+	text-align: center;
+	background-color: #ffffff;
+	padding: 2rem;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+	color: #dc3545;
+	font-size: 2rem;
+	margin-bottom: 1rem;
+}
+
+p {
+	color: #6c757d;
+	font-size: 1.2rem;
+	margin-bottom: 2rem;
+}
+
+.back-button {
+	background-color: #007bff;
+	color: #ffffff;
+	border: none;
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+	background-color: #0056b3;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Access Denied</h1>
+		<p>You do not have permission to view this page.</p>
+		<button class="back-button" onclick="goBack()">Go Back</button>
+	</div>
+
+	<script>
+        // JavaScript function to navigate back to the previous page
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post</title>
+     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #E9ECEF;
+        }
+        
+        
+
+        .container {
+            background: linear-gradient(to bottom right, #76CAD4, #57BC92);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #FFFFFF;
+        }
+.button-container {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    margin-left: auto; /* Push the container to the right */
+    width: 100%; /* Ensure it takes full width */
+}
+
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #76D7C4;
+    color: black;
+    transition: background-color 0.3s;
+    font-weight: bold;
+    flex: 1; /* Make buttons take equal width */
+}
+
+.btn:hover {
+    background-color: #ffffff;
+    color: #76D7C4;
+}
+
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+       .image-section {
+    text-align: center;
+    position: relative;
+    max-width: 100%; /* Prevent overflow of the image container */
+}
+
+        .image-frame img {
+    width: 400px;
+    height: 400px;
+    object-fit: cover;
+}
+
+        .details-section {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px;
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+       .label {
+    word-break: break-word; /* Break long words onto a new line */
+    overflow-wrap: break-word; /* Ensures wrapping */
+    max-width: 100%; /* Prevents overflow */
+    display: block; /* Ensures it behaves like a block element */
+}
+
+
+        .editable, .rich-text {
+            border: 1px solid #76D7C4;
+            padding: 8px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .editable:focus, .rich-text:focus {
+            border-color: #2ED573;
+            outline: none;
+        }
+
+        .rich-text {
+            min-height: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+   #imagePreview {
+    max-width: 100%; /* Ensure the image fits within the container */
+    max-height: 400px;
+    border-radius: 8px;
+}
+
+.image-name {
+    display: block;
+    max-width: 100%; /* Prevent the name from overflowing */
+    white-space: normal; /* Allow the filename to wrap */
+    word-wrap: break-word; /* Break the word if it exceeds container size */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ellipsis for very long names */
+    margin-top: 10px; /* Add some space between the image and name */
+    font-size: 14px; /* Adjust font size */
+}
+
+
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Edit Post</h1>
+        </div>
+
+        <form th:action="@{/posts/update}" method="POST" th:object="${post}" enctype="multipart/form-data">
+            <!-- Hidden field for Post ID -->
+            <input type="hidden" th:field="*{postId}">
+
+            <div class="content">
+               <div class="image-section">
+    <div class="image-frame">
+        <img id="imagePreview" alt="Item Image" style="display:none;">
+        <span id="fileNameDisplay" class="image-name" style="display:none;"></span> <!-- To show the image name -->
+    </div>
+    <label for="image" class="label">Item Image</label>
+    <input type="file" id="image" name="itemImage" accept="image/png,image/jpeg" onchange="previewImage(event)">
+</div>
+
+                <div class="details-section">
+                    
+                    <input type="hidden" th:value="${post.user != null ? post.user.userId : ''}" class="editable" required>
+
+                    <div class="label">Title</div>
+                    <input type="text" th:field="*{title}" class="editable" required>
+
+                    <div class="label">Description</div>
+                    <textarea th:field="*{description}" class="rich-text" MaxLength="200" required></textarea>
+
+                    <div class="label">Post Type</div>
+                    <select th:field="*{postType}" class="editable" required>
+				    <option value="LOST">Lost</option>
+				    <option value="FOUND">Found</option>
+					</select>
+					
+					 <div class="label">Category</div>
+					<select th:field="*{category}" class="editable" required>
+				    <option value="Books">Books</option>
+				    <option value="Electronics">Electronics</option>
+				    <option value="Clothing">Clothing</option>
+				    <option value="Stationery">Stationery</option>
+				    <option value="Sports Equipment">Sports Equipment</option>
+				    <option value="Musical Instruments">Musical Instruments</option>
+				    <option value="ID Cards">ID Cards</option>
+				    <option value="Accessories">Accessories</option>
+				    <option value="Lab Equipment">Lab Equipment</option>
+				    <option value="Personal Belongings">Personal Belongings</option>
+				    <option value="Others">Others</option>
+					</select>
+
+
+                    <div class="label">Location</div>
+                    <input type="text" th:field="*{location}" class="editable">
+
+                    <div class="label">Date</div>
+                    <input type="date" th:field="*{date}" class="editable" required>
+					<div class="button-container">
+    				<button class="btn" onclick="window.history.back()">Back</button>
+    				<button type="submit" class="btn">Update</button>
+					</div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function previewImage(event) {
+            const imagePreview = document.getElementById('imagePreview');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    imagePreview.src = reader.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        
+        
+
+
+        
+        
+    </script>
+    
+</body>
+</html>

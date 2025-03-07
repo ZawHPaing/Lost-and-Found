@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Requests</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    margin: 20px;
+    background: linear-gradient(to right, #76CAD4, #57BC92);
+    height: 100vh; /* Ensures full-page coverage */
+	}
+
+
+
+
+
+       .container {
+    max-width: 1000px;
+    margin: auto;
+    margin-left: 240px; /* Ensure enough space from the sidebar */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: 100px;
+}
+
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    word-wrap: break-word; /* Allows text to break into multiple lines */
+}
+
+td {
+    max-width: 250px; /* Set a max width for the post name cell */
+    overflow-wrap: break-word; /* Break words if they are too long */
+    white-space: normal; /* Allow text to wrap */
+}
+
+
+        th {
+            background: #6A82FB;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            background: #76D7C4;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #2ED573;
+        }
+
+        .view-btn {
+	    padding: 10px 20px;
+	    background-color: #007bff;
+	    color: white;
+	    border: none;
+	    border-radius: 8px;
+	    font-size: 16px;
+	    cursor: pointer;
+	    transition: background-color 0.3s;
+	    align-self: flex-end; /* Aligns button to the bottom */
+	    margin-top: auto; /* Ensure space at the bottom */
+	}
+
+	.view-btn:hover {
+	    background-color: #0056b3;
+
+	        }
+
+	        .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px; /* Thinner sidebar */
+    background: #D1E8E2;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    height: 100vh; /* Ensure sidebar spans the entire height */
+    z-index: 1000;
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: #2D2D2D;
+    margin-bottom: 30px;
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    background: #76D7C4;
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.sidebar button:hover {
+    background: white;
+    transform: scale(1.05);
+}
+	        .profile-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background: #FFD700;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    z-index: 1000;
+}
+
+.profile-btn:hover {
+    background: white;
+    transform: scale(1.05);
+}
+
+.pending-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 0px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.pending-badge {
+	position: absolute;
+	top: 15px;
+	right: 2px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.msg-noti-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.msg-noti-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.notification-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.notification-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+
+
+    </style>
+
+</head>
+<body>
+
+	<div class="sidebar">
+            <h2>Menu</h2>
+            <button class="pending-btn" th:onclick="'window.location.href=\'' + @{/posts/pendingpostsadmin} + '\''">
+            	Post Approve Requests
+            	<th:block th:if="${totalPending > 0}">
+					<span class="pending-badge" th:text="${totalPending}"></span>
+				</th:block>
+            </button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/rejectedpostsadmin} + '\''">Rejected Posts History</button>
+            <button th:onclick="'window.location.href=\'' + @{/claimrequests/viewadmin} + '\''">View Claim Requests</button>
+            <button th:onclick="'window.location.href=\'' + @{/users/manageUsers} + '\''">Manage Users</button>
+            <button class="msg-noti-btn" th:onclick="|window.location.href='@{/chatroom/conversations(userId=${session.loggedInUser.userId})}'|">
+				View Conversations
+				<th:block th:if="${totalUnreadMsg > 0}">
+					<span class="msg-noti-badge" th:text="${totalUnreadMsg}"></span>
+				</th:block>
+			</button>
+            <button class="notification-btn" onclick="window.location.href='/notifications'">
+				View Notifications
+				<th:block th:if="${totalUnreadNoti > 0}">
+					<span class="notification-badge" th:text="${totalUnreadNoti}"></span>
+				</th:block>
+			</button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/managepostsadmin} + '\''">Back to Dashboard</button>
+            <button th:onclick="'window.location.href=\'' + @{/login} + '\''">Log Out</button>
+        </div>
+     <button class="profile-btn" th:onclick="'window.location.href=\'/users/profile/' + ${session.loggedInUser.userId} + '\';'">Manage Profile</button>
+    
+    <div class="container">
+        <h1>Claim Requests</h1>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Post Name</th>
+                    <th>Claimant Name</th>
+                    <th>Description</th>
+                    <th>Actions</th> <!-- New column for action buttons -->
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="claimRequest : ${claimRequestList}">
+                   	<td class="post-name" th:text="${claimRequest.post.title}"></td>
+                    <td th:text="${claimRequest.user.username}"></td>
+             
+                    <td class="description" th:text="${claimRequest.description}"></td>
+                    <td>
+                        <button class="view-btn" th:onclick="'window.location.href=\'/claimrequests/view/' + ${claimRequest.claimRequestId} + '\';'">View</button>
+                        <button class="view-btn" th:onclick="'window.location.href=\'/claimrequests/deleteadmin/' + ${claimRequest.claimRequestId} + '\';'">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        
+    </div>
+    <script>
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+        let firstLoad = true;
+
+        stompClient.connect({}, function(frame) {
+            console.log('Connected:', frame);
+            stompClient.subscribe('/topic/notifications', function(response) {
+                console.log("New notification:", response.body);
+                updateNotificationCount();
+            });
+        }, function(error) {
+            console.error('WebSocket connection error:', error);
+        });
+
+        function playNotificationSound() {
+            const audio = new Audio('/sounds/notisound.wav');
+            audio.play().catch(error => console.error("Audio play error:", error));
+        }
+
+        function updateNotificationCount() {
+            fetch('/chat/notifications/unread-count')
+                .then(response => response.json())
+                .then(data => {
+                    const count = data.count || 0;
+                    const badge = document.getElementById("notification-badge");
+
+                    badge.textContent = count;
+                    badge.style.display = "flex"; // Always visible
+
+                    if (count > 0 && firstLoad) {
+                        playNotificationSound();
+                    }
+
+                    firstLoad = false;
+                })
+                .catch(error => console.error('Error fetching notifications:', error));
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            updateNotificationCount();
+            setInterval(updateNotificationCount, 10000);
+        });
+
+        document.getElementById('notification-icon').addEventListener('click', function() {
+            fetch('/chat/notifications/mark-all-seen', { method: 'POST' })
+                .then(() => updateNotificationCount());
+        });
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.description').forEach(function(desc) {
+            const maxLines = 1; // Limit to 3 lines
+            const maxChars = 10; // Max characters limit
+            const lineHeight = parseFloat(getComputedStyle(desc).lineHeight);
+            const maxHeight = maxLines * lineHeight;
+
+            let text = desc.textContent.trim();
+
+            // Apply character limit first
+            if (text.length > maxChars) {
+                text = text.substring(0, maxChars) + "...";
+            }
+
+            desc.textContent = text; // Set text
+
+            // Adjust text if it exceeds 3 lines
+            while (desc.scrollHeight > maxHeight && text.length > 0) {
+                text = text.slice(0, -1); // Remove last character
+                desc.textContent = text + "...";
+            }
+        });
+    });
+
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.post-name').forEach(function(postName) {
+            const maxChars = 25; // Max characters limit
+            let text = postName.textContent.trim();
+
+            // Apply character limit
+            if (text.length > maxChars) {
+                text = text.substring(0, maxChars) + "...";
+            }
+
+            postName.textContent = text; // Set truncated text
+        });
+    });
+
+    </script>
+</body>
+</html>

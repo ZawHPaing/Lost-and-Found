@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Lost and Found</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #F3F4F6; /* Light grayish background */
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            background-color: #D1E8E2; /* Light teal */
+            padding: 40px;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(209, 232, 226, 0), rgba(209, 232, 226, 1));
+        }
+
+        .sidebar h1 {
+            color: #2D2D2D; /* Dark gray */
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .sidebar-button {
+            background-color: #76D7C4; /* Mint green */
+            color: black;
+            border: none;
+            padding: 12px 25px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 25px;
+            width: 100%;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-button:hover {
+            background-color: white; /* Hover effect */
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            flex: 1;
+            background: linear-gradient(135deg, #76CAD4, #57BC92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-form {
+            background-color: #FFFFFF; /* White */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            color: #2D2D2D; /* Dark gray */
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 26px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #EAEAEA; /* Light gray */
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-field::placeholder {
+            color: #4B3D3D; /* Dark brownish-gray */
+        }
+
+        .input-field:focus {
+            border-color: #76D7C4; /* Highlight */
+            outline: none;
+            box-shadow: 0 0 5px rgba(118, 215, 196, 0.5);
+        }
+
+        .login-button {
+            background-color: #FF4500; /* Orange-red */
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .login-button:hover {
+            background-color: #FFD700; /* Gold/yellow */
+            transform: translateY(-2px);
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .social-button {
+            background-color: #EAEAEA; /* Light gray */
+            color: #2D2D2D; /* Dark gray */
+            border: none;
+            padding: 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 48%;
+            font-size: 14px;
+        }
+
+        .social-button:hover {
+            background-color: #76D7C4; /* Mint green on hover */
+            transform: translateY(-2px);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #2D2D2D; /* Dark gray */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            color: #FFD700; /* Gold/yellow */
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0, 0, 0, 0.5); 
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #FFFFFF;
+            margin: 5% auto; 
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            width: 90%; 
+            max-width: 500px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: #2D2D2D; /* Dark gray */
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #EAEAEA;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+
+        .modal-submit {
+            background-color: #FF4500; /* Orange-red */
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .modal-submit:hover {
+            background-color: #FFD700; /* Gold/yellow */
+            transform: translateY(-2px);
+        }
+        
+         .login-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #2D2D2D; /* Dark gray */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            color: #FFD700; /* Gold/yellow */
+        }
+        
+        .error-message {
+        color: red;
+        font-size: 0.9em;
+        display: block;
+        margin-top: 5px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Lost and Found</h1>
+            
+            <button class="sidebar-button" th:onclick="'window.location.href=\'' + @{/register} + '\''">Sign Up</button>
+        </div>
+        <div class="main-content">
+            <form class="login-form" th:action="@{/login}" method="post">
+                <h2 class="header">Login to Your Account</h2>
+                <input type="text" id="username" name="username" placeholder="Username" class="input-field" required>
+                <input type="password" id="password" name="password" placeholder="Password" class="input-field" required>
+                <button type="submit" class="login-button">Login</button>
+                
+                <!-- Display error message if login fails -->
+			<div class="signup-link error-message" th:if="${param.error}">Invalid username or password.</div>
+
+			<!-- Display logout message if user logs out -->
+			<div class="signup-link" th:if="${param.logout}">You have been logged out.</div>
+			
+			<div class="signup-link error-message" th:if="${param.banned}">
+			    <span th:text="${param.banned[0]}">Your account has been banned.</span>
+			</div>
+			               
+                 <div class="login-link">
+                    <a th:href="@{/register}">Don't have an account? Sign up here.</a>
+                </div>
+            </form>
+            
+            
+        </div>
+    </div>
+    
+    
+
+    <!-- Sign-Up Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="modal-header">Create an Account</h2>
+            <input type="text" placeholder="Username" class="modal-input" required>
+            <input type="email" placeholder="Email" class="modal-input" required>
+            <input type="password" placeholder="Password" class="modal-input" required>
+            <button class="modal-submit">Sign Up</button>
+        </div>
+    </div>
+
+    <script>
+    
+        function openModal() {
+            document.getElementById("signupModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("signupModal").style.display = "none";
+        }
+
+        // Close the modal when the user clicks outside of it
+        window.onclick = function(event) {
+            var modal = document.getElementById("signupModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        
+        
+    </script>
+</body>
+</html>

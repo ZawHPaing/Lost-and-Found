@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Request</title>
+    <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    margin: 0; /* Remove margin around the body */
+    padding: 0; /* Remove padding around the body */
+    background-color: #E9ECEF;
+    height: 100%; /* Ensure body takes full height of viewport */
+}
+
+html {
+    height: 100%; /* Ensure html takes full height of viewport */
+}
+
+
+       .container {
+    background: linear-gradient(to bottom right, #76CAD4, #57BC92);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 100%; /* Make the container stretch to the full width */
+    margin: 0; /* Remove margin from the container */
+    height: 100%; /* Fill the entire height of the body */
+    overflow: auto; /* Allows scrolling if content exceeds height */
+}
+
+        .header {
+            text-align: center;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #76D7C4;
+            color: black;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background-color: #ffffff;
+            color: #76D7C4;
+        }
+
+     .content {
+    display: grid;
+    gap: 20px;
+    background-color: #FFFFFF;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: calc(100% - 80px);
+    overflow-y: auto;
+    width: 800px; /* Set a fixed width for the white box */
+    margin: 0 auto; /* Center the white box horizontally */
+}
+
+
+        .label {
+            font-weight: bold;
+            color: #2D2D2D;
+        }
+
+        .editable {
+    border: 1px solid #76D7C4;
+    padding: 8px;
+    border-radius: 4px;
+    width: 100%; /* Use 100% for full width of the container or set a fixed width */
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+textarea {
+    width: 100%; /* Adjust this to a fixed value like 400px */
+    height: 120px; /* Set a fixed height */
+    resize: none; /* Prevent resizing */
+}
+
+        .editable:focus {
+            border-color: #2ED573;
+            outline: none;
+        }
+
+        .image-preview {
+            width: 300px; /* Fixed width */
+            height: 200px; /* Fixed height */
+            border-radius: 8px;
+            margin-top: 10px;
+            object-fit: cover; /* Ensures image is cropped to fit the dimensions */
+        }
+
+        .image-frame {
+            text-align: center;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .button-container .btn {
+            flex: 1;
+        }
+        
+         .alert-box {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #FFFFFF;
+        color: black;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        display: none; /* Initially hidden */
+    }
+
+    .alert-box p {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+
+    .alert-box .btn {
+        padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #76D7C4;
+            color: black;
+            transition: background-color 0.3s;
+            font-weight: bold;
+    }
+
+    .alert-box .btn:hover {
+        background-color: #ffffff;
+            color: #76D7C4;
+    }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Claim Request Form</h1>
+        </div>
+
+        <form th:action="@{/claimrequests/save}" method="POST" th:object="${claimRequest}" enctype="multipart/form-data"
+    onsubmit="confirmSubmission(event)">
+            <div class="content">
+                <input type="hidden" th:field="*{post.postId}" class="editable" required readonly>
+                <input type="hidden" name="userId" th:value="${session.loggedInUser.userId}">
+
+                <div class="label">Proof of Ownership (Description)</div>
+                <textarea th:field="*{description}" class="editable" maxlength="300" required></textarea>
+
+                <div class="label">Upload Proof Image</div>
+                <input type="file" id="image" name="itemImage" accept="image/png,image/jpeg" onchange="previewImage(event)">
+                <div class="image-frame">
+                    <img id="imagePreview" src="#" alt="Image Preview" class="image-preview" style="display: none;">
+                </div>
+
+                <div class="button-container">
+                    <button class="btn" type="button" onclick="window.history.back()">Back</button>
+                    <button type="submit" class="btn">Submit Claim</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div id="customAlert" class="alert-box">
+    <p>Your claim request has been submitted successfully!</p>
+    <button class="btn" onclick="closeAlert()">OK</button>
+	</div>
+
+    <script>
+        function previewImage(event) {
+            const imagePreview = document.getElementById('imagePreview');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    imagePreview.src = reader.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+   <script>
+    function confirmSubmission(event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Show the custom alert
+        document.getElementById("customAlert").style.display = "block";
+
+        // Store the form reference to submit later
+        window.formToSubmit = event.target;
+    }
+
+    function closeAlert() {
+        document.getElementById("customAlert").style.display = "none";
+
+        // Submit the form immediately when the user clicks OK
+        if (window.formToSubmit) {
+            window.formToSubmit.submit();
+        }
+    }
+</script>
+</body>
+</html>

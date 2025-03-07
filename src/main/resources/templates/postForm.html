@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post</title>
+     <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            background-color: #E9ECEF; /* Light gray background */
+        }
+
+        .container {
+            background: linear-gradient(to bottom right, #76CAD4, #57BC92); /* Gradient background */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+            max-width: 1200px; /* Set a max width */
+            margin: auto; /* Center the container */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between; /* Space buttons evenly */
+            margin-bottom: 20px;
+            color: #FFFFFF; /* White for header text */
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px; /* Space between buttons */
+            background-color: #76D7C4; /* Mint green for buttons */
+            color: black; /* Black text for buttons */
+            transition: background-color 0.3s; /* Smooth transition */
+            font-weight: bold; /* Bold button text */
+        }
+
+        .btn:hover {
+            background-color: #ffffff; /* Hover effect for buttons */
+            color: #76D7C4; /* Change text color on hover */
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr; /* Two columns: image and details */
+            gap: 30px;
+        }
+
+        .image-section {
+            text-align: center; /* Center the image */
+        }
+
+        .image-frame {
+            border: 1px solid #EAEAEA; /* Light gray border for image frame */
+            padding: 10px;
+            margin-top: 60px;
+            margin-left: 30px;
+            border-radius: 8px;
+            background-color: #EAEAEA; /* Light gray placeholder background for images */
+            display: flex;
+            width: 300px;
+            height: 300px;
+            align-items: center; /* Center the image vertically */
+            justify-content: center; /* Center the image horizontally */
+            overflow: hidden; /* Ensure the image doesn't overflow the frame */
+        }
+
+        .image-frame img {
+            max-width: 100%; /* Ensure the image doesn't exceed the frame width */
+            max-height: 100%; /* Ensure the image doesn't exceed the frame height */
+            object-fit: contain; /* Ensures image fits inside without distortion */
+            border-radius: 8px; /* Match the border radius of the frame */
+        }
+        
+         .post-image {
+         	padding: 10px 0;
+        }
+
+        .details-section {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px;
+            background-color: #FFFFFF;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .label {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #2D2D2D; /* Dark gray for labels */
+            text-align: left; /* Align the text to the left */
+            padding-right: 10px; /* Space between label and input */
+            display: flex;
+            justify-content: flex-start; /* Align label text to the left */
+        }
+
+        .editable, .rich-text {
+            border: 1px solid #76D7C4; /* Mint green border for editable fields */
+            padding: 8px;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box; /* Make sure padding is included in width */
+            transition: border-color 0.3s; /* Smooth transition for border color */
+        }
+
+        .editable:focus, .rich-text:focus {
+            border-color: #2ED573; /* Darker mint green when focused */
+            outline: none; /* Remove default outline */
+        }
+
+        .rich-text {
+            min-height: 120px; /* Increased height for rich text area */
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+
+            .btn {
+                width: 100%; /* Full width buttons on small screens */
+                margin-bottom: 10px; /* Space between buttons */
+            }
+        }
+
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #FFFFFF;
+            color: black;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            display: none; /* Initially hidden */
+        }
+
+        .alert-box p {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .alert-box .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #76D7C4;
+            color: black;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        .alert-box .btn:hover {
+            background-color: #ffffff;
+            color: #76D7C4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Create Post</h1>
+        </div>
+
+        <form th:action="@{/posts/save}" method="POST" th:object="${post}" enctype="multipart/form-data"  onsubmit="confirmSubmission(event)">
+    <div class="content">
+        <div class="image-section">
+            <div class="image-frame">
+                <img id="imagePreview" src="#" alt="Image Preview" class="image-preview" style="display: none;">
+            </div>
+            <input type="file" id="image" class="post-image"  name="itemImage" accept="image/png,image/jpeg" onchange="previewImage(event)">
+        </div>
+
+        <div class="details-section" >
+            
+           
+       		
+        	<input type="hidden" th:value="${post.user != null ? post.user.userId : ''}" class="editable" required th:each="user : ${users}">
+    		
+
+            <div class="label">Title</div>
+            <input type="text" th:field="*{title}" class="editable" maxlength="30" required>
+
+            <div class="label">Description</div>
+            <textarea th:field="*{description}" class="rich-text" MaxLength="300" required></textarea>
+
+            <div class="label">Post Type</div>
+            <select th:field="*{postType}" class="editable" required>
+                <option value="LOST">Lost</option>
+                <option value="FOUND">Found</option>
+            </select>
+
+            <div class="label">Category</div>
+            <select th:field="*{category}" class="editable" required>
+                <option value="Books">Books</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Stationery">Stationery</option>
+                <option value="Sports Equipment">Sports Equipment</option>
+                <option value="Musical Instruments">Musical Instruments</option>
+                <option value="ID Cards">ID Cards</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Lab Equipment">Lab Equipment</option>
+                <option value="Personal Belongings">Personal Belongings</option>
+                <option value="Others">Others</option>
+            </select>
+
+            <div class="label">Location</div>
+            <input type="text" th:field="*{location}" class="editable" maxlength="20">
+
+            <div class="label">Date</div>
+            <input type="date" th:field="*{date}" class="editable" required>
+			<button class="btn" onclick="window.history.back()">Back</button>
+            <button type="submit" class="btn">Submit</button>
+        </div>
+    </div>
+</form>
+    </div>
+    <div id="customAlert" class="alert-box">
+    <p>Your post has been uploaded. An admin will approve it shortly.</p>
+    <button class="btn" onclick="closeAlert()">OK</button>
+	</div>
+    
+
+    <script>
+        function previewImage(event) {
+            const imagePreview = document.getElementById('imagePreview');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    imagePreview.src = reader.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+    <script>
+    function confirmSubmission(event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Show the custom alert
+        document.getElementById("customAlert").style.display = "block";
+
+        // Store the form reference to submit later
+        window.formToSubmit = event.target;
+    }
+
+    function closeAlert() {
+        document.getElementById("customAlert").style.display = "none";
+
+        // Submit the form immediately when the user clicks OK
+        if (window.formToSubmit) {
+            window.formToSubmit.submit();
+        }
+    }
+</script>
+    
+</body>
+</html>

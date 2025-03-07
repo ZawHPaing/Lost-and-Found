@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lost and Found Chat</title>
+<style>
+
+body {
+	font-family: 'Helvetica Neue', Arial, sans-serif;
+	margin: 0;
+	padding: 0;
+	background: #F3F4F6;
+	color: #2D2D2D;
+	min-height: 100vh; /* Ensure body takes up full height */
+	display: flex; /* Use flexbox to arrange sidebar and content */
+	overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.container {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	/* Ensure the container takes up the full height */
+}
+
+.sidebar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 200px; /* Thinner sidebar */
+	background: #D1E8E2;
+	padding: 20px;
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+	height: 100vh; /* Ensure sidebar spans the entire height */
+	z-index: 1000;
+}
+
+.sidebar h2 {
+	text-align: center;
+	color: #2D2D2D;
+	margin-bottom: 30px;
+	font-size: 24px;
+	text-transform: uppercase;
+	margin-top: 5px;
+}
+
+.sidebar button {
+	width: 100%;
+	padding: 12px;
+	margin: 10px 0;
+	border: none;
+	background: #76D7C4;
+	color: black;
+	cursor: pointer;
+	font-size: 16px;
+	border-radius: 8px;
+	transition: background 0.3s, transform 0.3s;
+}
+
+.sidebar button:hover {
+	background: white;
+	transform: scale(1.05);
+}
+
+.main-content {
+	margin-left: 220px; /* Add more space for the sidebar */
+	padding: 20px;
+	background: linear-gradient(135deg, #76CAD4 0%, #57BC92 100%);
+	flex-grow: 1;
+	min-height: 100vh; /* Ensure main content spans full height */
+	overflow-y: auto; /* Allow scrolling for the main content */
+}
+
+.pending-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 0px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.pending-badge {
+	position: absolute;
+	top: 15px;
+	right: 2px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.msg-noti-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.msg-noti-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.notification-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.notification-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+h1 {
+	font-size: 36px;
+	margin-bottom: 30px;
+	color: white;
+	margin-top: 0px; /* Adjust margin to move header closer to the top */
+}
+
+.search-container {
+	display: flex;
+	gap: 20px;
+	margin-bottom: 20px;
+	margin-left: 20px;
+}
+
+.search-form {
+	display: flex;
+	flex: 1;
+	align-items: center;
+}
+
+.search-form input[type="text"], .search-form input[type="date"],
+	.search-form select {
+	width: 100%;
+	padding: 8px;
+	margin-right: 8px;
+	border-radius: 8px;
+	border: none;
+}
+
+.search-form button {
+	padding: 8px 12px;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	cursor: pointer;
+	border-radius: 8px;
+}
+
+.search-form button:hover {
+	background-color: #0056b3;
+}
+
+.posts-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	/* Adjust the number of columns based on screen size */
+	gap: 20px;
+	margin-left: 20px;
+	overflow-y: auto;
+	/* Enables vertical scrolling if there are more posts */
+	overflow-x: hidden;
+}
+
+.post-box {
+	background: #FFFFFF;
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	transition: transform 0.3s, box-shadow 0.3s;
+	display: flex;
+	flex-direction: column;
+	height: 400px; /* Set a fixed height for each post */
+}
+
+.post-box:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	background: #F0FFF0;
+}
+
+.post-image {
+	width: 100%;
+	height: 200px; /* Fixed height */
+	object-fit: cover; /* Maintain aspect ratio */
+	border-radius: 10px;
+	background-color: #EAEAEA;
+	margin-bottom: 15px;
+}
+
+.post-title {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	color: #333;
+	position: relative;
+}
+
+.post-description {
+	height: 40px;
+	display: -webkit-box;
+	-webkit-line-clamp: 3; /* Limit to 3 lines */
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	word-wrap: break-word;
+	line-height: 1.4em;
+	max-height: 4.2em; /* Ensures 3 lines */
+	font-size: 15px;
+	margin-bottom: 15px;
+	/* Add margin to create space between description and category */
+}
+
+.post-approvalStatus, .post-category, .post-date {
+	font-size: 14px;
+	color: #333;
+	position: relative;
+}
+
+.view-btn {
+	padding: 10px 20px;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.3s;
+	align-self: flex-end; /* Aligns button to the bottom */
+	margin-top: auto; /* Ensure space at the bottom */
+}
+
+.view-btn:hover {
+	background-color: #0056b3;
+}
+
+.profile-btn {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	padding: 10px 15px;
+	background: #FFD700;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background 0.3s, transform 0.3s;
+	z-index: 1000;
+}
+
+.profile-btn:hover {
+	background: white;
+	transform: scale(1.05);
+}
+
+.create-post-btn {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	padding: 15px 20px;
+	background: #FF4500;
+	border: none;
+	border-radius: 8px;
+	font-size: 18px;
+	color: white;
+	cursor: pointer;
+	transition: background 0.3s, transform 0.3s;
+	z-index: 1000;
+}
+
+.create-post-btn:hover {
+	background: white;
+	color: #FF4500;
+	transform: scale(1.05);
+}
+
+
+.button-container {
+	display: flex;
+	gap: 10px; /* Space between buttons */
+	margin-top: auto; /* Ensure buttons stay at the bottom of the post */
+}
+
+.chat-area {
+	flex: 1;
+	background: linear-gradient(135deg, #76CAD4, #57BC92);
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+.chat-area {
+	flex: 1;
+	background: linear-gradient(135deg, #76CAD4, #57BC92);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 30px;
+}
+
+.notifications-container {
+	background: white;
+	padding: 25px;
+	border-radius: 12px;
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+	max-width: 650px;
+	width: 100%;
+}
+
+.notifications-container h1 {
+	font-size: 24px;
+	margin-bottom: 15px;
+	color: #333;
+}
+
+.notifications-list {
+	list-style: none;
+	padding: 0;
+}
+
+.notifications-list li {
+	padding: 12px;
+	border-bottom: 1px solid #E0E0E0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: background 0.3s;
+}
+
+.notifications-list li:hover {
+	background: #f1f5f9;
+}
+
+.notifications-list li a {
+	text-decoration: none;
+	color: #374151;
+	font-weight: bold;
+	font-size: 15px;
+}
+
+.new-notification {
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	padding: 4px 8px;
+	border-radius: 12px;
+}
+
+#markAllSeen {
+	background-color: #FF6B6B;
+	color: white;
+	padding: 12px 18px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: bold;
+	margin-top: 15px;
+	width: 100%;
+	transition: all 0.3s ease;
+}
+
+#markAllSeen:hover {
+	background-color: #FF4757;
+	transform: translateY(-3px);
+}
+</style>
+</head>
+<body>
+
+	<div class="container">
+		<div class="sidebar">
+            <h2>Menu</h2>
+            <button class="pending-btn" th:onclick="'window.location.href=\'' + @{/posts/pendingpostsadmin} + '\''">
+            	Post Approve Requests
+            	<th:block th:if="${totalPending > 0}">
+					<span class="pending-badge" th:text="${totalPending}"></span>
+				</th:block>
+            </button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/rejectedpostsadmin} + '\''">Rejected Posts History</button>
+            <button th:onclick="'window.location.href=\'' + @{/claimrequests/viewadmin} + '\''">View Claim Requests</button>
+            <button th:onclick="'window.location.href=\'' + @{/users/manageUsers} + '\''">Manage Users</button>
+            <button class="msg-noti-btn" th:onclick="|window.location.href='@{/chatroom/conversations(userId=${session.loggedInUser.userId})}'|">
+				View Conversations
+				<th:block th:if="${totalUnreadMsg > 0}">
+					<span class="msg-noti-badge" th:text="${totalUnreadMsg}"></span>
+				</th:block>
+			</button>
+            <button class="notification-btn" onclick="window.location.href='/notifications'">
+				View Notifications
+				<th:block th:if="${totalUnreadNoti > 0}">
+					<span class="notification-badge" th:text="${totalUnreadNoti}"></span>
+				</th:block>
+			</button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/managepostsadmin} + '\''">Back to Dashboard</button>
+            <button th:onclick="'window.location.href=\'' + @{/login} + '\''">Log Out</button>
+        </div>
+
+		<!-- Chat Area & Notifications -->
+		<main class="chat-area">
+      <div class="notifications-container">
+        <h1>Notifications</h1>
+        <ul class="notifications-list">
+          <li th:each="notification : ${notifications}"><a
+            th:attr="data-noti-id=${notification.notificationId}, data-type=${notification.notificationType}, data-id=${notification.referenceId}">
+              <span th:text="${notification.message}"></span>
+          </a> <span th:if="${!notification.seen}" class="new-notification">New</span>
+          </li>
+        </ul>
+        <button id="markAllSeen">Mark all as seen</button>
+      </div>
+    </main>
+	</div>
+
+	<script>
+	document.addEventListener("DOMContentLoaded", function () {
+	    document.querySelectorAll(".notifications-list li a").forEach(notification => {
+	        notification.addEventListener("click", function (event) {
+	            event.preventDefault(); // Prevent immediate navigation
+
+	            let notificationType = this.getAttribute("data-type");
+	            let referenceId = this.getAttribute("data-id");
+				let notiId =  this.getAttribute("data-noti-id")
+	            let redirectUrl = determineRedirectUrl(notificationType, referenceId, notiId);
+
+				//alert(notificationType);
+				//alert(referenceId);
+				//alert(notiId);
+				alert("Redirecting to:", redirectUrl); // Debugging
+	            if (notificationType === "chat_received") {
+	                markMessagesAndNotificationsAsRead(referenceId, redirectUrl);
+	            } else {
+	                markNotificationAsSeen(notiId, redirectUrl);
+	            }
+	        });
+	    });
+
+	 	// Handle marking all notifications as seen
+	    document.getElementById("markAllSeen").addEventListener("click", function () {
+	        markAllNotificationsAsSeen();
+	    });
+
+	    function markAllNotificationsAsSeen() {
+	        fetch("/notifications/mark-all-seen", { method: "PUT" })
+	            .then(response => response.json())
+	            .then(() => window.location.reload()) // Reload to show updates
+	            .catch(error => console.error("Error marking all notifications as seen:", error));
+	    }
+
+	    function determineRedirectUrl(notificationType, referenceId, notiId) {
+	        //alert("Reference ID before fetch:", referenceId); // Debugging
+
+	        // Validate referenceId before using it
+	        if (!referenceId || isNaN(referenceId)) {
+	            console.error("Invalid referenceId:", referenceId);
+	            return "/notifications"; // Prevent bad requests
+	        }
+
+	        switch (notificationType) {
+	            case "chat_received":
+	                return `/chat/room/${referenceId}`;
+	            case "post_approved":
+	                //alert("postapprove");
+	                return `/posts/view/${referenceId}`;
+	            case "add_claimrequest":
+	                const claimRequestUrl = `/claimrequests/findByPost/${referenceId}`;
+	                fetch(claimRequestUrl)
+	                .then(response => {
+	                    if (!response.ok) {
+	                        throw new Error(`Server error: ${response.status}`);
+	                    }
+	                    return response.json();
+	                })
+	                .then(data => {
+	                    window.location.href = `/claimrequests/view/${data.claimRequestId}`;
+	                    const singleClaimRequestUrl = `/claimrequests/view/${data.claimRequestId}`;
+	                })
+	                .catch(error => {
+	                    console.error("Error fetching claim request:", error);
+	                    alert("Error fetching claim request: " + error.message);
+	                });
+	                return singleClaimRequestUrl;
+	        }
+	    }
+
+
+
+	    function markMessagesAndNotificationsAsRead(chatRoomId, redirectUrl) {
+	        fetch(`/mark-read/${chatRoomId}`, { method: "PUT" })
+	            .then(response => response.json())
+	            .then(() => window.location.href = redirectUrl)
+	            .catch(error => console.error("Error marking messages as read:", error));
+	    }
+
+	    function markNotificationAsSeen(notificationId, redirectUrl) {
+	        fetch(`/notifications/${notificationId}/seen`, { method: "PUT" })
+	            .then(response => response.json())
+	            .then(() => window.location.href = redirectUrl)
+	            .catch(error => console.error("Error marking notification as seen:", error));
+	    }
+	});
+
+  </script>
+</body>
+</html>

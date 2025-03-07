@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: #F3F4F6;
+            --sidebar-bg: #D1E8E2;
+            --text-color: #2D2D2D;
+            --table-bg: white;
+            --accent-color: #76D7C4;
+            --btn-primary: #2ED573;
+            --btn-danger: #FF4500;
+            --btn-hover: white;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6A82FB, #2ED573);
+            transition: background 0.3s;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Styles */
+       .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px; /* Thinner sidebar */
+    background: #D1E8E2;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    height: 100vh; /* Ensure sidebar spans the entire height */
+    z-index: 1000;
+    overflow-y: auto; /* Allows vertical scrolling if content exceeds the height */
+}
+
+.sidebar h2 {
+    text-align: center;
+    color: #2D2D2D;
+    margin-bottom: 10px;
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-top: 5px;
+}
+
+.sidebar button {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    background: #76D7C4;
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.sidebar button:hover {
+    background: white;
+    transform: scale(1.05);
+}
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            background: linear-gradient(135deg, #76CAD4 0%, #57BC92 100%);
+            color: white;
+            margin-left: 250px; /* Ensure the main content isn't hidden behind the sidebar */
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            display: flex;
+            justify-content: left;
+            padding: 0;
+            margin: 0;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+            border-radius: 4px;
+            margin: 0;
+        }
+
+        h2 {
+            color: var(--text-color);
+        }
+
+        .table-container {
+            background-color: var(--table-bg);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            border: 1px solid var(--accent-color);
+            color: var(--text-color);
+        }
+
+        th {
+            background-color: #728cf6;
+            text-align: center;
+        }
+
+        td .button-container {
+            text-align: center;
+        }
+
+        .chat-btn, .ban-btn, .unban-btn, .warn-btn {
+            padding: 6px 12px;
+            margin: 5px;
+            width: 60%;
+            font-size: 14px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .ban-btn {
+            background-color: #dc3545;
+        }
+
+        .ban-btn:hover {
+            background-color: #c82333;
+        }
+		.chat-btn,
+        .unban-btn {
+            background-color: #28a745;
+        }
+		.chat-btn,
+        .unban-btn:hover {
+            background-color: #218838;
+        }
+
+        .warn-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .warn-btn:hover {
+            background-color: #e0a800;
+        }
+        
+.pending-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 0px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.pending-badge {
+	position: absolute;
+	top: 15px;
+	right: 2px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.msg-noti-btn {
+    position: relative;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.msg-noti-badge {
+    position: absolute;
+    top: 0px;
+    right: 5px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-btn {
+    position: relative;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+        
+
+       
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+            <h2>Menu</h2>
+            <button class="pending-btn" th:onclick="'window.location.href=\'' + @{/posts/pendingpostsadmin} + '\''">
+            	Post Approve Requests
+            	<th:block th:if="${totalPending > 0}">
+					<span class="pending-badge" th:text="${totalPending}"></span>
+				</th:block>
+            </button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/rejectedpostsadmin} + '\''">Rejected Posts History</button>
+            <button th:onclick="'window.location.href=\'' + @{/claimrequests/viewadmin} + '\''">View Claim Requests</button>
+            <button th:onclick="'window.location.href=\'' + @{/users/manageUsers} + '\''">Manage Users</button>
+            <button class="msg-noti-btn" th:onclick="|window.location.href='@{/chatroom/conversations(userId=${session.loggedInUser.userId})}'|">
+            	View Conversations
+            	<th:block th:if="${totalUnreadMsg > 0}">
+			        <span class="msg-noti-badge" th:text="${totalUnreadMsg}"></span>
+			    </th:block>
+            </button>
+            <button class="notification-btn" onclick="window.location.href='/notifications'">
+			    View Notifications
+			    <th:block th:if="${totalUnreadNoti > 0}">
+			        <span class="notification-badge" th:text="${totalUnreadNoti}"></span>
+			    </th:block>
+			</button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/managepostsadmin} + '\''">Back to Dashboard</button>
+            <button th:onclick="'window.location.href=\'' + @{/login} + '\''">Log Out</button>
+        </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="search-bar">
+                <input type="text" placeholder="Search..." onkeyup="filterTable()">
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>phoneNumber</th>
+                        <th>Status</th>
+                        <th>Warnings</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.username}" class="field"></td>
+                        <td th:text="${user.email}" class="field"></td>
+                        <td th:text="${user.phoneNumber}" class="field"></td>
+                        <td th:text="${user.banned ? 'Banned' : 'Active'}"></td>
+                        <td th:text="${user.warnings}"></td>
+                        <td>
+                            <div class="button-container">
+                                <form action="/users/banUser" method="post" th:if="${!user.banned}">
+                                    <input type="hidden" name="userId" th:value="${user.userId}" />
+                                    <button type="submit" class="ban-btn">Ban</button>
+                                </form>
+                                <form action="/users/unbanUser" method="post" th:if="${user.banned}">
+                                    <input type="hidden" name="userId" th:value="${user.userId}" />
+                                    <button type="submit" class="unban-btn">Unban</button>
+                                </form>
+                                <form action="/users/warnUser" method="post">
+                                    <input type="hidden" name="userId" th:value="${user.userId}" />
+                                    <button type="submit" class="warn-btn">Warn</button>
+                                </form>
+                                <form
+				th:if="${session.loggedInUser != null and user.userId != session.loggedInUser.userId}"
+				th:action="@{/chat/room}" method="post">
+				<input type="hidden" name="userId1"
+					th:value="${session.loggedInUser.userId}" /> <input type="hidden"
+					name="userId2" th:value="${user.userId}" />
+				<button class="chat-btn" type="submit">Chat</button>
+			</form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function filterTable() {
+            let input = document.querySelector('.search-bar input').value.toLowerCase();
+            let rows = document.querySelectorAll('#userTable tbody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('.field').forEach(function(postName) {
+                const maxChars = 25;
+                let text = postName.textContent.trim();
+
+                if (text.length > maxChars) {
+                    text = text.substring(0, maxChars) + "...";
+                }
+
+                postName.textContent = text;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookLink - User</title>
+</head>
+<body>
+
+		
+		<main>
+			<h1>Add User</h1>
+
+			<form th:action="@{/users/save}" method="post" th:object="${user}" novalidate>
+				
+				<div>
+					<label>Username</label>
+					<input type="text" id="username" th:field="*{username}" name="username" required minlength="3" maxlength="100"/>
+					<p th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+				</div>
+				<div>
+					<label>Password</label>
+					<input type="password" id="password" th:field="*{password}" name="password" required/>
+					<p th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+				</div>
+				<div>
+					<label>Email</label>
+					<input type="email" id="email" th:field="*{email}" name="email" required minlength="3" maxlength="100"/>
+					<p th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+				</div>
+
+				<button type="submit">Add</button>
+			</form>
+		</main>
+  </body>
+</html>

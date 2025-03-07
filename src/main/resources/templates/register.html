@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Lost and Found</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #F3F4F6; /* Light grayish background */
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            background-color: #D1E8E2; /* Light teal */
+            padding: 40px;
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(to right, rgba(209, 232, 226, 0), rgba(209, 232, 226, 1));
+        }
+
+        .sidebar h1 {
+            color: #2D2D2D; /* Dark gray */
+            margin-bottom: 40px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .sidebar-button {
+            background-color: #76D7C4; /* Mint green */
+            color: black;
+            border: none;
+            padding: 12px 25px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 25px;
+            width: 100%;
+            font-size: 16px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-button:hover {
+            background-color: white; /* Hover effect */
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            flex: 1;
+            background: linear-gradient(135deg, #76CAD4, #57BC92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .signup-form {
+            background-color: #FFFFFF; /* White */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            color: #2D2D2D; /* Dark gray */
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 26px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #EAEAEA; /* Light gray */
+            border-radius: 25px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-field::placeholder {
+            color: #4B3D3D; /* Dark brownish-gray */
+        }
+
+        .input-field:focus {
+            border-color: #76D7C4; /* Highlight */
+            outline: none;
+            box-shadow: 0 0 5px rgba(118, 215, 196, 0.5);
+        }
+
+        .signup-button {
+            background-color: #FF4500; /* Orange-red */
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .signup-button:hover {
+            background-color: #FFD700; /* Gold/yellow */
+            transform: translateY(-2px);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #2D2D2D; /* Dark gray */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-link a:hover {
+            color: #FFD700; /* Gold/yellow */
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Lost and Found</h1>
+            <button class="sidebar-button" th:onclick="'window.location.href=\'' + @{/login} + '\''">Login</button>
+        </div>
+        <div class="main-content">
+            <form class="signup-form" th:action="@{/register}" method="post" th:object="${user}" onsubmit="return validateForm()">
+                <h2 class="header">Register</h2>
+                <input type="text" id="username" th:field="*{username}" placeholder="Username" class="input-field" maxlength="20" required>
+                <input type="email" id="email" th:field="*{email}" placeholder="Email" class="input-field" required>
+                <input type="password" id="password" th:field="*{password}" placeholder="Password" class="input-field" required>
+                <span id="passwordError" class="error-message"></span>
+                <!-- Hidden input field for role, defaulting to ROLE_USER -->
+                <input type="hidden" th:field="*{role}" value="ROLE_USER" />
+                <button type="submit" class="signup-button">Register</button>
+                <div class="login-link">
+                    <a th:href="@{/login}">Already have an account? Login here.</a>
+                </div>
+                <div th:if="${error}" class="error-message">
+                    <p th:text="${error}"></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+    function validateForm() {
+	 // Validate Password and Confirm Password
+	    const passwordInput = document.getElementById('password');
+	    const passwordError = document.getElementById('passwordError');
+	
+	    // Check if password is being updated (not left blank)
+	        if (passwordInput.value.length < 6) {
+	            passwordError.textContent = 'Password must be at least 6 characters long.';
+	            return false; // Prevent form submission
+	        } else {
+	            passwordError.textContent = ''; // Clear error message
+	        }
+	    return true;
+    }
+    </script>
+</body>
+</html>

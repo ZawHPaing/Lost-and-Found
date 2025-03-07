@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Claim Request</title>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<style>
+body {
+	font-family: 'Arial', sans-serif;
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+	background: linear-gradient(to bottom right, #76CAD4, #57BC92);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.sidebar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 200px;
+	background: #D1E8E2;
+	padding: 20px;
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+	height: 100%;
+	z-index: 1000;
+}
+
+.container {
+	background-color: rgba(255, 255, 255, 0.9);
+	padding: 30px;
+	border-radius: 10px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	max-width: 1200px;
+	width: 90%;
+	margin-left: 300px;
+	margin-right: 50px;
+	margin-top: 50px;
+	height: 400px;
+}
+
+.sidebar h2 {
+	text-align: center;
+	color: #2D2D2D;
+	margin-bottom: 30px;
+	font-size: 24px;
+	text-transform: uppercase;
+}
+
+.sidebar button {
+	width: 100%;
+	padding: 12px;
+	margin: 10px 0;
+	border: none;
+	background: #76D7C4;
+	color: black;
+	cursor: pointer;
+	font-size: 16px;
+	border-radius: 8px;
+	transition: background 0.3s, transform 0.3s;
+}
+
+.sidebar button:hover {
+	background: white;
+	transform: scale(1.05);
+}
+
+.profile-btn {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	padding: 10px 15px;
+	background: #FFD700;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background 0.3s, transform 0.3s;
+	z-index: 1000;
+}
+
+.profile-btn:hover {
+	background: white;
+	transform: scale(1.05);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 20px;
+	color: #333;
+}
+
+.btn {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	margin-left: 10px;
+	background-color: #76D7C4;
+	color: black;
+	transition: background-color 0.3s;
+	font-weight: bold;
+}
+
+.btn:hover {
+	background-color: #ffffff;
+	color: #76D7C4;
+}
+
+.content {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	gap: 30px;
+}
+
+.image-section {
+	text-align: center;
+}
+
+.image-frame {
+	border: 1px solid #EAEAEA;
+	padding: 10px;
+	border-radius: 8px;
+	background-color: #EAEAEA;
+	width: 94%;
+	height: 94%;
+	aspect-ratio: 4/3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.image-frame img {
+	width: 94%;
+	height: 94%;
+	object-fit: cover;
+}
+
+.details-section {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 15px;
+	background-color: #FFFFFF;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.details-section .label {
+	font-weight: bold;
+	color: #2D2D2D;
+	margin-bottom: 5px;
+}
+
+.details-section div {
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: normal;
+	line-height: 1.6;
+	word-break: break-word;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+.details-section .description {
+	max-height: 100px; /* Set a max height for the description */
+	overflow-y: auto;
+	/* Add scroll if the description exceeds the max-height */
+}
+
+.details-section .post-name {
+	max-height: 100px; /* Set a max height for the description */
+	overflow-y: auto;
+	/* Add scroll if the description exceeds the max-height */
+}
+
+.label {
+	font-weight: bold;
+	color: #2D2D2D;
+}
+
+@media ( max-width : 768px) {
+	.content {
+		grid-template-columns: 1fr;
+	}
+	.btn {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+	.container {
+		margin-left: 0;
+	}
+	.sidebar {
+		width: 100%;
+		position: relative;
+		height: auto;
+	}
+}
+
+.button-container {
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+	display: flex;
+	gap: 10px;
+}
+
+.pending-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 0px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.pending-badge {
+	position: absolute;
+	top: 15px;
+	right: 2px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.msg-noti-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.notification-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.notification-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+</style>
+
+</head>
+<body>
+	 <div class="sidebar">
+            <h2>Menu</h2>
+            <button class="pending-btn" th:onclick="'window.location.href=\'' + @{/posts/pendingpostsadmin} + '\''">
+            	Post Approve Requests
+            	<th:block th:if="${totalPending > 0}">
+					<span class="pending-badge" th:text="${totalPending}"></span>
+				</th:block>
+            </button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/rejectedpostsadmin} + '\''">Rejected Posts History</button>
+            <button th:onclick="'window.location.href=\'' + @{/claimrequests/viewadmin} + '\''">View Claim Requests</button>
+            <button th:onclick="'window.location.href=\'' + @{/users/manageUsers} + '\''">Manage Users</button>
+            <button class="msg-noti-btn" th:onclick="|window.location.href='@{/chatroom/conversations(userId=${session.loggedInUser.userId})}'|">
+            	View Conversations
+            	<th:block th:if="${totalUnreadMsg > 0}">
+			        <span class="msg-noti-badge" th:text="${totalUnreadMsg}"></span>
+			    </th:block>
+            </button>
+            <button class="notification-btn" onclick="window.location.href='/notifications'">
+			    View Notifications
+			    <th:block th:if="${totalUnreadNoti > 0}">
+			        <span class="notification-badge" th:text="${totalUnreadNoti}"></span>
+			    </th:block>
+			</button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/managepostsadmin} + '\''">Back to Dashboard</button>
+            <button th:onclick="'window.location.href=\'' + @{/login} + '\''">Log Out</button>
+        </div>
+
+	<button class="profile-btn" th:onclick="'window.location.href=\'/users/profile/' + ${session.loggedInUser.userId} + '\';'">Manage Profile</button>
+
+	<div class="container">
+		<div class="header">
+			<h1>View Claim Request</h1>
+		</div>
+
+		<div class="content">
+			<div class="image-section">
+				<div class="image-frame">
+					<img
+						th:src="@{/uploads/claimrequests/{id}/{imageName}(id=${claimRequest.claimRequestId}, imageName=${claimRequest.imgName})}"
+						alt="Proof Image">
+				</div>
+			</div>
+
+			<div class="details-section">
+				<div class="label">Post Name</div>
+				<div class="post-name" th:text="${claimRequest.post.title}"></div>
+
+				<div class="label">Post Owner Name</div>
+				<div th:text="${claimRequest.post.user.username}"></div>
+
+				<div class="label">Claimant Name</div>
+				<div th:text="${claimRequest.user.username}"></div>
+
+				<div class="label">Description</div>
+				<div th:text="${claimRequest.description}" class="description"></div>
+
+				<div class="label">Submitted At</div>
+				<div
+					th:text="${#temporals.format(claimRequest.createdAt, 'dd-MM-yyyy HH:mm')}"></div>
+
+			</div>
+		</div>
+
+		<div class="button-container">
+
+			<button class="btn" onclick="window.history.back()">Back</button>
+			<form
+				th:if="${session.loggedInUser != null and claimRequest.user.userId != session.loggedInUser.userId}"
+				th:action="@{/chat/room}" method="post">
+				<input type="hidden" name="userId1"
+					th:value="${session.loggedInUser.userId}" /> <input type="hidden"
+					name="userId2" th:value="${claimRequest.user.userId}" />
+				<button class="btn" type="submit">Chat</button>
+			</form>
+		</div>
+	</div>
+
+</body>
+</html>

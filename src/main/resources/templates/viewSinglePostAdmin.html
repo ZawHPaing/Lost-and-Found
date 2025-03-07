@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Post</title>
+<style>
+body {
+	font-family: 'Arial', sans-serif;
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+	background: linear-gradient(to bottom right, #6A82FB, #2ED573);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.sidebar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 200px; /* Thinner sidebar */
+	background: #D1E8E2;
+	padding: 20px;
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+	height: 100%;
+	z-index: 1000;
+}
+
+.container {
+	background-color: rgba(255, 255, 255, 0.9);
+	padding: 10px;
+	border-radius: 10px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	max-width: 900px; /* Set a fixed width */
+	width: 90%;
+	margin-left: 250px; /* Offset for sidebar */
+	margin-top: 10px;
+	height: 450px; /* Fixed height */
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.sidebar h2 {
+	text-align: center;
+	color: #2D2D2D;
+	margin-bottom: 30px;
+	font-size: 24px;
+	text-transform: uppercase;
+	margin-top: 5px;
+}
+
+.sidebar button {
+	width: 100%;
+	padding: 15px;
+	margin: 10px 0;
+	border: none;
+	background: #76D7C4;
+	color: black;
+	cursor: pointer;
+	font-size: 16px;
+	border-radius: 8px;
+	transition: background 0.3s, transform 0.3s;
+}
+
+.sidebar button:hover {
+	background: white;
+	transform: scale(1.05);
+}
+
+.profile-btn {
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	padding: 10px 15px;
+	background: #FFD700;
+	border: none;
+	border-radius: 8px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background 0.3s, transform 0.3s;
+	z-index: 1000;
+}
+
+.profile-btn:hover {
+	background: white;
+	transform: scale(1.05);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 20px;
+	color: #333;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #76D7C4;
+    color: black;
+    transition: background-color 0.3s;
+    font-weight: bold;
+    flex: 1; /* Make buttons take equal width */
+}
+
+.btn:hover {
+    background-color: #ffffff;
+    color: #76D7C4;
+}
+
+.content {
+	display: flex;
+	gap: 20px;
+	height: 350px; /* Fixed height inside container */
+}
+
+.image-section {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	max-width: 40%;
+	height: 100%;
+}
+
+.image-frame {
+	width: 80%;
+	height: 80%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #EAEAEA;
+	padding: 10px;
+	border-radius: 8px;
+	background-color: #EAEAEA;
+	overflow: hidden;
+}
+
+.image-frame img {
+	width: 80%;
+	height: 80%;
+	object-fit: contain; /* Ensures image fits inside without distortion */
+}
+
+.details-section {
+	flex: 1;
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 15px;
+	background-color: #FFFFFF;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	height: 80%;
+	overflow-y: auto; /* Scroll only if needed */
+}
+
+.label {
+	font-weight: bold;
+	color: #2D2D2D;
+}
+
+@media ( max-width : 768px) {
+	.content {
+		grid-template-columns: 1fr;
+	}
+	.btn {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+	.container {
+		margin-left: 0;
+	}
+	.sidebar {
+		width: 100%;
+		position: relative;
+		height: auto;
+	}
+}
+
+.button-container {
+	position: absolute;
+	bottom: 20px;
+	right: 20px;
+	display: flex;
+	gap: 10px;
+}
+
+.description {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+.pending-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 0px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.pending-badge {
+	position: absolute;
+	top: 15px;
+	right: 2px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.msg-noti-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.msg-noti-badge {
+	position: absolute;
+	top: 15px;
+	right: 5px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.notification-btn {
+	position: relative;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	border-radius: 5px;
+}
+
+.notification-badge {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	background: red;
+	color: white;
+	font-size: 12px;
+	font-weight: bold;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+</style>
+</head>
+<body>
+	 <div class="sidebar">
+            <h2>Menu</h2>
+            <button class="pending-btn" th:onclick="'window.location.href=\'' + @{/posts/pendingpostsadmin} + '\''">
+            	Post Approve Requests
+            	<th:block th:if="${totalPending > 0}">
+					<span class="pending-badge" th:text="${totalPending}"></span>
+				</th:block>
+            </button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/rejectedpostsadmin} + '\''">Rejected Posts History</button>
+            <button th:onclick="'window.location.href=\'' + @{/claimrequests/viewadmin} + '\''">View Claim Requests</button>
+            <button th:onclick="'window.location.href=\'' + @{/users/manageUsers} + '\''">Manage Users</button>
+            <button class="msg-noti-btn" th:onclick="|window.location.href='@{/chatroom/conversations(userId=${session.loggedInUser.userId})}'|">
+            	View Conversations
+            	<th:block th:if="${totalUnreadMsg > 0}">
+			        <span class="msg-noti-badge" th:text="${totalUnreadMsg}"></span>
+			    </th:block>
+            </button>
+            <button class="notification-btn" onclick="window.location.href='/notifications'">
+			    View Notifications
+			    <th:block th:if="${totalUnreadNoti > 0}">
+			        <span class="notification-badge" th:text="${totalUnreadNoti}"></span>
+			    </th:block>
+			</button>
+            <button th:onclick="'window.location.href=\'' + @{/posts/managepostsadmin} + '\''">Back to Dashboard</button>
+            <button th:onclick="'window.location.href=\'' + @{/login} + '\''">Log Out</button>
+        </div>
+	<button class="profile-btn" th:onclick="'window.location.href=\'/users/profile/' + ${session.loggedInUser.userId} + '\';'">Manage Profile</button>
+
+	<div class="container">
+		<div class="header">
+			<h1>View Post</h1>
+		</div>
+
+		<div class="content">
+			<div class="image-section">
+				<div class="image-frame">
+					<img
+						th:src="@{/uploads/posts/{id}/{imageName}(id=${post.postId}, imageName=${post.imgName})}"
+						alt="Item Image">
+				</div>
+			</div>
+
+			<div class="details-section">
+				<div class="label">Post Owner</div>
+				<div th:text="${post.user.username}"></div>
+
+				<div class="label">Title</div>
+				<div th:text="${post.title}"></div>
+
+				<div class="label">Description</div>
+				<div class="description" th:utext="${post.description}"></div>
+
+				<div class="label">Post Type</div>
+				<div th:text="${post.postType}"></div>
+
+				<div class="label">Category</div>
+				<div th:text="${post.category}"></div>
+
+				<div class="label">Location</div>
+				<div th:text="${post.location}"></div>
+
+				<div class="label">Submitted Date</div>
+				<div th:text="${#temporals.format(post.date, 'dd-MM-yyyy')}"></div>
+				
+				<div class="label">Expire Date</div>
+				<div
+					th:text="${#temporals.format(post.expiryDate, 'dd-MM-yyyy HH:mm')}"></div>
+
+</div>
+			</div>
+		</div>
+		<div class="button-container">
+			<button class="btn" onclick="window.history.back()">Back</button>
+
+
+			<input type="hidden" name="userId1"
+				th:value="${session.loggedInUser.userId}" /> <input type="hidden"
+				name="userId2" th:value="${post.user.userId}" />
+			<button class="btn delete-btn"
+				th:if="${session.loggedInUser != null and post.user.userId != session.loggedInUser.userId and session.loggedInUser.role!='ROLE_ADMIN'}"
+				th:action="@{/claimrequests/add/{id}(id=${post.postId})}"
+				th:onclick="'window.location.href=\'' + @{/claimrequests/add/{id}(id=${post.postId})} + '\''">Send
+				Claim Request</button>
+
+
+		</div>
+	</div>
+
+</body>
+</html>
